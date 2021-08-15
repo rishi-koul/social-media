@@ -32,4 +32,19 @@ export const loginUser=async(user, setError, setLoading)=>{
     }
 }
 
+export const redirectUser=(ctx, location)=>{
+    if(ctx.req){
+        ctx.res.writeHead(302, {Location:location})
+        ctx.res.end()
+    }else{
+        Router.push(location)
+    }
+}
+
+export const logoutUser=email=>{
+    cookie.set('userEmail', email)
+    cookie.remove('token')
+    Router.push("/login")
+}
+
 

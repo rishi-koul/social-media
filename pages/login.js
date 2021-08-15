@@ -2,6 +2,7 @@ import {HeaderMsg, FooterMsg} from "../components/Common/WelcomeMsg"
 import React, {useState, useEffect} from "react"
 import {Form, Button, Message, Segment, Divider} from "semantic-ui-react"
 import {loginUser} from "../utils/authUser"
+import cookie from 'js-cookie'
 
 function Login() {
     const [user, setUser] = useState({
@@ -21,6 +22,12 @@ function Login() {
 
         isUser? setSubmitDisabled(false):setSubmitDisabled(true)
     }, [user])
+
+    useEffect(() => {
+        document.title='Welcome Back'
+        const userEmail = cookie.get('userEmail')
+        if(userEmail) setUser(prev=>({...prev, email:userEmail}))
+    }, [])
 
     const handleChange = (e) => {
         const {name, value} = e.target
