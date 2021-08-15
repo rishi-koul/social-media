@@ -1,6 +1,7 @@
 import {HeaderMsg, FooterMsg} from "../components/Common/WelcomeMsg"
 import React, {useState, useEffect} from "react"
 import {Form, Button, Message, Segment, Divider} from "semantic-ui-react"
+import {loginUser} from "../utils/authUser"
 
 function Login() {
     const [user, setUser] = useState({
@@ -26,7 +27,12 @@ function Login() {
         setUser(prev => ({ ...prev, [name]:value}))
     }
 
-    const handleSubmit = (e) => e.preventDefault()
+    const handleSubmit = async e => {
+        e.preventDefault()
+        setFormLoading(true)
+        await loginUser(user, setErrorMsg, setFormLoading)
+        setFormLoading(false)
+    }
     return (
         <>
         <HeaderMsg />
