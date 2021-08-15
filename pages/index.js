@@ -1,6 +1,10 @@
-import React from 'react'
+import React, {useEffect} from 'react'
 
-function index() {
+function Index({user, userFollowStats}) {
+    
+    useEffect(() => {
+        document.title=`Welcome, ${user.name.split(' ')[0]}`
+    }, [])
     return (
         <div>
             Homepage
@@ -8,4 +12,4 @@ function index() {
     )
 }
 
-export default index
+export default Index
