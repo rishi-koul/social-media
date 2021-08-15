@@ -2,6 +2,7 @@ import {HeaderMsg, FooterMsg} from "../components/Common/WelcomeMsg"
 import React, {useState, useEffect, useRef} from "react"
 import {Form, Button, Message, Segment, TextArea, Divider} from "semantic-ui-react"
 import CommonInputs from "../components/Common/CommonInputs"
+import ImageDropDiv from "../components/Common/ImageDropDiv"
 
 const regexUserName = /^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{0,29}$/;
 
@@ -45,8 +46,11 @@ function Signup() {
 
     const handleSubmit = e => e.preventDefault()
     const handleChange = (e) => {
-        const {name, value} = e.target
-
+        const {name, value, files} = e.target
+        if(name === "media"){
+            setMedia(files[0])
+            setMediaPreview(URL.createObjectURL(files[0]))
+        }
         setUser(prev => ({ ...prev, [name]:value}))
     }
     return (
@@ -57,6 +61,7 @@ function Signup() {
         <Message error header="Oops!" content={errorMsg} onDismiss={()=>setErrorMsg(null)} />
 
         <Segment>
+        <ImageDropDiv mediaPreview={mediaPreview} setMediaPreview={setMediaPreview} setMedia={setMedia} highlighted={highlighted} setHighlighted={setHighlighted} inputRef={inputRef} handleChange={handleChange}/>
             <Form.Input label="Name" placeholder="Name" name="name" value={name} onChange={handleChange} fluid icon="user" iconPosition="left" required/>
             <Form.Input label="Email" placeholder="Email" name="email" value={email} onChange={handleChange} fluid icon="envelope" iconPosition="left" type="email" required/>
             <Form.Input label="Password" placeholder="Password" name="password" value={password} onChange={handleChange} fluid icon={{name:"eye", circular:true, link:true, onClick:()=>setShowPassword(!showPassword)}} iconPosition="left" type={showPassword?"text":"password"} required/>
@@ -74,7 +79,7 @@ function Signup() {
 
             <Divider hidden />
 
-            <Button content="Signup" type="submit" color="orange" disabled={submitDisabled || !usernameAvailable} />
+            <Button icon="signup" content="Signup" type="submit" color="orange" disabled={submitDisabled || !usernameAvailable} />
         </Segment>
 
         </Form>
