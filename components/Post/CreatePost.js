@@ -1,110 +1,157 @@
-import React, {useState, useRef} from 'react'
-import {Form, Image, Button, Divider, Message, Icon} from 'semantic-ui-react'
-import uploadPic from "../../utils/uploadPicToCloudinary"
-import {submitNewPost} from "../../utils/postActions"
+import React, { useState, useRef } from "react";
+import { Form, Button, Image, Divider, Message, Icon } from "semantic-ui-react";
+import uploadPic from "../../utils/uploadPicToCloudinary";
+import { submitNewPost } from "../../utils/postActions";
 
-function CreatePost({user, setPosts}) {
+function CreatePost({ user, setPosts }) {
+  const [newPost, setNewPost] = useState({ text: "", location: "" });
+  const [loading, setLoading] = useState(false);
+  const inputRef = useRef();
 
-    const [newPost, setNewPost] = useState({text:"", location:""})
-    const [loading, setLoading] = useState(false)
-    const inputRef = useRef()
+  const [error, setError] = useState(null);
+  const [highlighted, setHighlighted] = useState(false);
 
-    const [error, setError] = useState(null)
-    const [highlighted, setHighlighted] = useState(false)
+  const [media, setMedia] = useState(null);
+  const [mediaPreview, setMediaPreview] = useState(null);
 
-    const [media, setMedia] = useState(null)
-    const [mediaPreview, setMediaPreview] = useState(null)
+  const handleChange = e => {
+    const { name, value, files } = e.target;
 
-    const addStyles=() => ({
-        textAlign:"center", 
-        height:"150px", 
-        width: "150px", 
-        border:"dotted", 
-        paddingTop: media===null&&"60px",
-        cursor:"pointer",
-        borderColor:highlighted?"green":"black"
-    })
-
-    const handleChange = e => {
-        const {name, value, files} = e.target
-
-        if(name === "media"){
-            setMedia(files[0])
-            setMediaPreview(URL.createObjectURL(files[0]))
-        }
-
-        setNewPost(prev=>({ ...prev, [name]:value}))
+    if (name === "media") {
+      setMedia(files[0]);
+      setMediaPreview(URL.createObjectURL(files[0]));
     }
 
-    const handleSubmit = async e => {
-        e.preventDefault()
-        setLoading(true)
-        let picUrl;
-        if(media!==null){
-            picUrl = await uploadPic(media)
-            if(!picUrl){
-                setLoading(false)
-                return setError("Error Uploading Image")
-            }
-        }
+    setNewPost(prev => ({ ...prev, [name]: value }));
+  };
 
-        await submitNewPost(user, newPost.text, newPost.location, picUrl, setPosts, setNewPost, setError);
+  const addStyles = () => ({
+    textAlign: "center",
+    height: "150px",
+    width: "150px",
+    border: "dotted",
+    paddingTop: media === null && "60px",
+    cursor: "pointer",
+    borderColor: highlighted ? "green" : "black"
+  });
 
-        setMedia(null)
-        setMediaPreview(null)
-        setLoading(false)
+  const handleSubmit = async e => {
+    e.preventDefault();
+    setLoading(true);
+    let picUrl;
+
+    if (media !== null) {
+      picUrl = await uploadPic(media);
+      if (!picUrl) {
+        setLoading(false);
+        return setError("Error Uploading Image");
+      }
     }
-    return (
-        <>
-            <Form error={error!==null} onSubmit={handleSubmit}>
-                <Message error onDismiss={()=> setError(null)} content={error} header="Oops!" />
-                <Form.Group>
-                    <Image src={user.profilePicUrl} circular avatar inline   />
-                    <Form.TextArea placeholder="Whats Happening" name="text" value={newPost.text} onChange={handleChange} rows={4} width={14} />
-                </Form.Group> 
-                <Form.Group>
-                    <Form.Input value={newPost.location} name="location" onChange={handleChange} label="Add Location" icon="map marker alternate" placeholder="Want to add location?" />
-                    <input ref={inputRef} onChange={handleChange} name="media" style={{display:"none"}} type="file" accept="image/*" />
-                </Form.Group> 
-                    <div 
-                    style={addStyles()} 
-                    onDragOver={(e)=>{
-                        e.preventDefault()
-                        setHighlighted(true)
-                    }}
-                    onDragLeave={(e)=>{
-                        e.preventDefault()
-                        setHighlighted(false)
-                    }}
-                    onDrop={(e)=>{
-                        e.preventDefault()
-                        setHighlighted(true)
 
-                        const droppedFile = Array.from(e.dataTransfer.files)
-                        setMedia(droppedFile[0])
-                        setMediaPreview(URL.createObjectURL(droppedFile[0]))
-                    }}
-                    >
-                        {media === null ? (
-                            <Icon name="plus" onClick={()=>inputRef.current.click()} size="big" />
-                        ) : (
-                            <Image style={{
-                             height:"140px", 
-                             width: "140px"}} 
-                             src={mediaPreview} alt="Post Image" centered size="medium" onClick={()=>inputRef.current.click()} />
-                        ) }
+    await submitNewPost(
+      newPost.text,
+      newPost.location,
+      picUrl,
+      setPosts,
+      setNewPost,
+      setError
+    );
 
-                    </div>
+    setMedia(null);
+    setMediaPreview(null);
+    setLoading(false);
+  };
 
-                    <Divider hidden />
-                    <Button circular disabled={newPost.text === "" || loading} content={<strong>Post</strong>} style={{
-                        backgroundColor: "#1DA1F2",
-                        color:"white"
-                    }} icon="send" loading={loading} />
-            </Form> 
-            <Divider />  
-        </>
-    )
+  return (
+    <>
+      <Form error={error !== null} onSubmit={handleSubmit}>
+        <Message
+          error
+          onDismiss={() => setError(null)}
+          content={error}
+          header="Oops!"
+        />
+
+        <Form.Group>
+          <Image src={user.profilePicUrl} circular avatar inline />
+          <Form.TextArea
+            placeholder="Whats Happening"
+            name="text"
+            value={newPost.text}
+            onChange={handleChange}
+            rows={4}
+            width={14}
+          />
+        </Form.Group>
+
+        <Form.Group>
+          <Form.Input
+            value={newPost.location}
+            name="location"
+            onChange={handleChange}
+            label="Add Location"
+            icon="map marker alternate"
+            placeholder="Want to add Location?"
+          />
+
+          <input
+            ref={inputRef}
+            onChange={handleChange}
+            name="media"
+            style={{ display: "none" }}
+            type="file"
+            accept="image/*"
+          />
+        </Form.Group>
+
+        <div
+          onClick={() => inputRef.current.click()}
+          style={addStyles()}
+          onDrag={e => {
+            e.preventDefault();
+            setHighlighted(true);
+          }}
+          onDragLeave={e => {
+            e.preventDefault();
+            setHighlighted(false);
+          }}
+          onDrop={e => {
+            e.preventDefault();
+            setHighlighted(true);
+
+            const droppedFile = Array.from(e.dataTransfer.files);
+
+            setMedia(droppedFile[0]);
+            setMediaPreview(URL.createObjectURL(droppedFile[0]));
+          }}>
+          {media === null ? (
+            <Icon name="plus" size="big" />
+          ) : (
+            <>
+              <Image
+                style={{ height: "150px", width: "150px" }}
+                src={mediaPreview}
+                alt="PostImage"
+                centered
+                size="medium"
+              />
+            </>
+          )}
+        </div>
+        <Divider hidden />
+
+        <Button
+          circular
+          disabled={newPost.text === "" || loading}
+          content={<strong>Post</strong>}
+          style={{ backgroundColor: "#1DA1F2", color: "white" }}
+          icon="send"
+          loading={loading}
+        />
+      </Form>
+      <Divider />
+    </>
+  );
 }
 
-export default CreatePost
+export default CreatePost;
