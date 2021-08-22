@@ -32,9 +32,19 @@ router.post("/", authMiddleware, async(req, res)=>{
 
 router.get('/', authMiddleware, async (req, res)=> {
 
-    try {
-        const posts = await PostModel.find().sort({createdAt:-1}).populate('user').populate('comments.user')
+    const {pageNumber} = req.query
 
+    const number = Number(pageNumber)
+    const size = 8
+    try {
+        let posts;
+
+        if(number === 1){
+            posts = await PostModel.find().limit(size).sort({createdAt:-1}).populate('user').populate('comments.user') 
+        }else{
+            const skips = size*(number - 1);
+            posts = await PostModel.find().skip(skips).limit(size).sort({createdAt:-1}).populate('user').populate('comments.user')
+        }
         return res.json(posts)
     } catch (error) {
         return res.status(500).send("Server Error")

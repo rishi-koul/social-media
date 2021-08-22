@@ -5,6 +5,9 @@ import CommentInputField from "./CommentInputField"
 import Link from "next/link"
 import calculateTime from "../../utils/calculateTime"
 import {deletePost, likePost} from "../../utils/postActions"
+import LikesList from "./LikesList"
+import NoImageModal from "./NoImageModal"
+import ImageModal from "./ImageModal"
 
 function CardPost({post, user, setPosts, setShowToastr}) {
 
@@ -14,13 +17,32 @@ function CardPost({post, user, setPosts, setShowToastr}) {
 
     const [error, setError] = useState(null)
 
+    const [showModal, setShowModal] = useState(false)
 
+
+    const addPropsToModal = () => ({
+        post, 
+        user, 
+        setLikes, 
+        likes, 
+        isLiked, 
+        comments, 
+        setComments
+    })
     return (
         <>
+
+        {showModal && (
+            <Modal open={showModal} closeIcon closeOnDimmerClick onClose={()=>setShowModal(false)} >
+                <Modal.Content>
+                    {post.picUrl ? <ImageModal {...addPropsToModal()}/> : <NoImageModal {...addPropsToModal()} />}
+                </Modal.Content>
+            </Modal>
+        )}
           <Segment basic>
               <Card color="teal" fluid>
                   {post.picUrl && (<Image src={post.picUrl} style={{cursor: "pointer"}} floted="left" wrapped ui={false}
-                  alt="PostImage" /> )}
+                  alt="PostImage" onClick={()=> setShowModal(true)} /> )}
 
                   <Card.Content>
                       <Image floated="left" src={post.user.profilePicUrl} avatar circular />
@@ -59,11 +81,11 @@ function CardPost({post, user, setPosts, setShowToastr}) {
                   <Card.Content extra>
                       <Icon name={isLiked?'heart':'heart outline'} color='red' style={{cursor: "pointer"}} onClick={()=>likePost(post._id, user._id, setLikes, isLiked?false:true)} />
 
-                        {likes.length > 0 && (
+                        <LikesList postId={post._id} trigger={likes.length > 0 && (
                             <span className="spanLikesList">
                                 {`${likes.length} ${likes.length===1 ? "like" : "likes" } `}
                             </span>
-                        )}
+                        )} />
 
                         <Icon name="comment outline" style={{marginLeft:"7px"}} color="blue" />
 
@@ -77,7 +99,7 @@ function CardPost({post, user, setPosts, setShowToastr}) {
                          />)
                          )}
 
-                         {comments.length > 3 && (<Button content="View more" color="teal" basic circular />)}
+                         {comments.length > 3 && (<Button content="View more" color="teal" basic circular onClick={()=>setShowModal(true)} />)}
 
                          <Divider hidden />
                          <CommentInputField user={user} postId={post._id} setComments={setComments} />
