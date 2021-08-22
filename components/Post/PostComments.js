@@ -3,6 +3,7 @@ import {Card, Icon, Image, Divider, Segment, Button, Popup, Header, Modal, Comme
 import CommentInputField from "./CommentInputField"
 import Link from "next/link"
 import calculateTime from "../../utils/calculateTime"
+import {deleteComment} from "../../utils/postActions"
 
 function PostComments({comment, user, setComments, postId}) {
 
@@ -21,6 +22,17 @@ function PostComments({comment, user, setComments, postId}) {
         <Comment.Text>
         {comment.text}
         </Comment.Text>
+
+        <Comment.Actions>
+          <Comment.Action>
+            {(user.role==="root"||comment.user._id===user._id) && (
+              <Icon disabled={disabled} color="red" name="trash" onClick={()=>{
+                deleteComment(postId, comment._id, setComments)
+                setDisabled(false)
+                }} />
+            )}
+          </Comment.Action>
+        </Comment.Actions>
       </Comment.Content>
     </Comment>
   </Comment.Group>
