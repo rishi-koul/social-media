@@ -1,6 +1,7 @@
 import React, {useState, useRef} from 'react'
 import {Form, Image, Button, Divider, Message, Icon} from 'semantic-ui-react'
 import uploadPic from "../../utils/uploadPicToCloudinary"
+import {submitNewPost} from "../../utils/postActions"
 
 function CreatePost({user, setPosts}) {
 
@@ -35,7 +36,24 @@ function CreatePost({user, setPosts}) {
         setNewPost(prev=>({ ...prev, [name]:value}))
     }
 
-    const handleSubmit = async e => e.preventDefault()
+    const handleSubmit = async e => {
+        e.preventDefault()
+        setLoading(true)
+        let picUrl;
+        if(media!==null){
+            picUrl = await uploadPic(media)
+            if(!picUrl){
+                setLoading(false)
+                return setError("Error Uploading Image")
+            }
+        }
+
+        await submitNewPost(user, newPost.text, newPost.location, picUrl, setPosts, setNewPost, setError);
+
+        setMedia(null)
+        setMediaPreview(null)
+        setLoading(false)
+    }
     return (
         <>
             <Form error={error!==null} onSubmit={handleSubmit}>

@@ -4,8 +4,9 @@ import PostComments from "./PostComments"
 import CommentInputField from "./CommentInputField"
 import Link from "next/link"
 import calculateTime from "../../utils/calculateTime"
+import {deletePost, likePost} from "../../utils/postActions"
 
-function CardPost({post, user, setPosts, setToastr}) {
+function CardPost({post, user, setPosts, setShowToastr}) {
 
     const [likes, setLikes] = useState(post.likes)
     const isLiked = likes.length>0 && likes.filter(like=>like.user===user._id).length>0
@@ -35,7 +36,7 @@ function CardPost({post, user, setPosts, setToastr}) {
 
                         <Header as="h4" content="Are you sure?" />
                         <p>This action is irreversible</p>
-                        <Button color="red" icon="trash" content="Delete" />
+                        <Button color="red" icon="trash" content="Delete" onClick={()=>deletePost(post._id, setPosts, setShowToastr)} />
                          </Popup>
                         </>
                       )}
@@ -56,7 +57,7 @@ function CardPost({post, user, setPosts, setToastr}) {
                   </Card.Content>
 
                   <Card.Content extra>
-                      <Icon name={isLiked?'heart':'heart outline'} color='red' style={{cursor: "pointer"}} />
+                      <Icon name={isLiked?'heart':'heart outline'} color='red' style={{cursor: "pointer"}} onClick={()=>likePost(post._id, user._id, setLikes, isLiked?false:true)} />
 
                         {likes.length > 0 && (
                             <span className="spanLikesList">
