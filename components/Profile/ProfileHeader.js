@@ -83,12 +83,7 @@ function ProfileHeader({
                   )}
                 </List>
               ) : (
-                <List>
-                  <List.Item>
-                    <List.Icon name="mail" />
-                    <List.Content content={profile.user.email} />
-                  </List.Item>
-                 </List> 
+                <>No Social Media Links </>
               )}
             </Grid.Row>
           </Grid.Column>
