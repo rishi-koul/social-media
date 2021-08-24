@@ -6,6 +6,7 @@ const UserModel = require("../models/UserModel");
 router.get("/:searchText", authMiddleware, async (req, res) => {
   try {
     let { searchText } = req.params;
+    const {userId} = req
     searchText = searchText.trim()
     if (searchText.length === 0) return;
 
@@ -15,7 +16,10 @@ router.get("/:searchText", authMiddleware, async (req, res) => {
       name: {$regex : "^" + searchText}
     });
 
-    return res.status(200).json(results);
+    const resultsToBeSent = results.length > 0 && results.filter(result=>result._id.toString()!==userId)
+
+
+    return res.status(200).json(resultsToBeSent);
   } catch (error) {
     console.error(error);
     return res.status(500).send(`Server error`);
