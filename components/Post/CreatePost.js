@@ -32,7 +32,7 @@ function CreatePost({ user, setPosts }) {
 
   const addStyles = () => ({
     textAlign: "center",
-    height: "150px",
+    height: "160px",
     width: "150px",
     border: "dotted",
     paddingTop: media === null && "60px",
